@@ -41,11 +41,11 @@ function createBackgrounds() {
         let x = i * segmentWidth;
         let variant = (i % 2 === 0) ? '1' : '2';
         objects.push(
+            new BackgroundObject('img/background/water/' + variant + '.png', x),
             new BackgroundObject('img/background/fondo2/' + variant + '.png', x),
             new BackgroundObject('img/background/fondo1/' + variant + '.png', x),
             new BackgroundObject('img/background/floor/' + variant + '.png', x),
-            new BackgroundObject('img/background/light/' + variant + '.png', x),
-            new BackgroundObject('img/background/water/' + variant + '.png', x)
+            new BackgroundObject('img/background/light/' + variant + '.png', x)
         );
     }
     return objects;
