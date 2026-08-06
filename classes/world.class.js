@@ -7,6 +7,7 @@ class World {
     cameraX = 0;
     coinsCollected = 0;
     isBossFight = false;
+    bubbles = [];
 
     constructor(canvas, keyboard) {
         this.canvas = canvas;
@@ -29,6 +30,7 @@ class World {
         this.ctx.save();
         this.ctx.translate(this.cameraX, 0);
         this.drawBackgrounds();
+        this.drawBubbles();
         this.drawCoins();
         this.drawEnemies();
         this.drawCharacter();
@@ -40,6 +42,10 @@ class World {
 
     drawBackgrounds() {
         this.level.backgroundObjects.forEach(bg => bg.draw(this.ctx));
+    }
+
+    drawBubbles() {
+        this.bubbles.forEach(bubble => bubble.draw(this.ctx));
     }
 
     drawCoins() {
@@ -92,17 +98,38 @@ class World {
 
     checkCollisions() {
         // During boss fight, only check collision with boss
-        let enemiesToCheck = this.isBossFight 
+        let enemiesToCheck = this.isBossFight
             ? this.level.enemies.filter(enemy => enemy instanceof EndBoss)
             : this.level.enemies;
-        
-        this.character.isHurt = enemiesToCheck.some(enemy => this.character.isColliding(enemy));
+        let harmfulEnemies = enemiesToCheck.filter(enemy => !(enemy instanceof EndBoss && enemy.isDefeated));
+
+        this.character.isHurt = harmfulEnemies.some(enemy => this.character.isColliding(enemy));
         this.checkCoinCollection();
+        this.checkMeleeHits();
+        this.cleanupBubbles();
     }
 
     checkCoinCollection() {
         let remaining = this.level.coins.filter(coin => !this.character.isColliding(coin));
         this.coinsCollected += this.level.coins.length - remaining.length;
         this.level.coins = remaining;
+    }
+
+    checkMeleeHits() {
+        if (!this.character.isFinSlapping || this.character.finSlapHasHit) return;
+        let hits = this.level.enemies.filter(enemy => this.character.isColliding(enemy));
+        if (!hits.length) return;
+        this.character.finSlapHasHit = true;
+        hits.forEach(enemy => {
+            if (enemy instanceof EndBoss) enemy.takeDamage(1);
+        });
+        let toRemove = hits.filter(enemy => !(enemy instanceof EndBoss));
+        if (toRemove.length) {
+            this.level.enemies = this.level.enemies.filter(enemy => !toRemove.includes(enemy));
+        }
+    }
+
+    cleanupBubbles() {
+        this.bubbles = this.bubbles.filter(bubble => !bubble.markedForRemoval);
     }
 }

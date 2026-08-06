@@ -8,19 +8,41 @@ function createLevel1() {
 }
 
 function createEnemies() {
-    return [
-        new PufferFish(),
-        new PufferFish(),
-        new PufferFish(),
-        new PufferFish(),
-        new PufferFish(),
-        new JellyFish(false),
-        new JellyFish(false),
-        new JellyFish(false),
-        new JellyFish(true),
-        new JellyFish(true),
-        new EndBoss(6100)
-    ];
+    let enemies = [];
+    let pufferPositions = spawnPositions(6, 400, 5800);
+    pufferPositions.forEach(x => {
+        let fish = new PufferFish();
+        fish.x = x;
+        enemies.push(fish);
+    });
+    let jellyPositions = spawnPositions(6, 400, 5800);
+    let dangerFlags = shuffle([true, true, false, false, false, false]);
+    jellyPositions.forEach((x, i) => {
+        let jelly = new JellyFish(dangerFlags[i]);
+        jelly.x = x;
+        enemies.push(jelly);
+    });
+    enemies.push(new EndBoss(6100));
+    return enemies;
+}
+
+function spawnPositions(count, rangeStart, rangeEnd) {
+    let positions = [];
+    let segmentSize = (rangeEnd - rangeStart) / count;
+    for (let i = 0; i < count; i++) {
+        let segStart = rangeStart + i * segmentSize;
+        positions.push(segStart + Math.random() * segmentSize);
+    }
+    return positions;
+}
+
+function shuffle(array) {
+    let arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
 }
 
 function createCoins() {
