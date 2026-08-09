@@ -33,21 +33,47 @@ class EndBoss extends MovableObject {
         'img/enemies/boss/floating/13.png'
     ];
 
+    IMAGES_DEAD = [
+        'img/enemies/boss/dead/1.png',
+        'img/enemies/boss/dead/2.png',
+        'img/enemies/boss/dead/3.png',
+        'img/enemies/boss/dead/4.png',
+        'img/enemies/boss/dead/5.png',
+        'img/enemies/boss/dead/6.png'
+    ];
+
+    deathFrame = 0;
+
     constructor(x) {
         super();
         this.x = x;
         this.loadImage(this.IMAGES_FLOATING[0]);
         this.loadImages(this.IMAGES_FLOATING);
+        this.loadImages(this.IMAGES_DEAD);
         this.animate();
     }
 
     animate() {
         setInterval(() => this.chaseCharacter(), 1000 / 60);
-        setInterval(() => this.playAnimation(this.IMAGES_FLOATING), 150);
+        setInterval(() => this.updateAnimation(), 150);
+    }
+
+    updateAnimation() {
+        if (this.isDefeated) {
+            this.playDeathAnimation();
+        } else {
+            this.playAnimation(this.IMAGES_FLOATING);
+        }
+    }
+
+    playDeathAnimation() {
+        if (this.deathFrame >= this.IMAGES_DEAD.length) return;
+        this.img = this.imageCache[this.IMAGES_DEAD[this.deathFrame]];
+        this.deathFrame++;
     }
 
     chaseCharacter() {
-        if (!this.world || this.isDefeated) return;
+        if (!this.world || this.isDefeated || !gameStarted) return;
         let distanceX = this.world.character.x - this.x;
         let distanceY = this.world.character.y - this.y;
 

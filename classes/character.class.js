@@ -40,6 +40,38 @@ class Character extends MovableObject {
         'img/sharkie/swim/6.png'
     ];
 
+    IMAGES_LONG_IDLE = [
+        'img/sharkie/long-idle/1.png',
+        'img/sharkie/long-idle/2.png',
+        'img/sharkie/long-idle/3.png',
+        'img/sharkie/long-idle/4.png',
+        'img/sharkie/long-idle/5.png',
+        'img/sharkie/long-idle/6.png',
+        'img/sharkie/long-idle/7.png',
+        'img/sharkie/long-idle/8.png',
+        'img/sharkie/long-idle/9.png',
+        'img/sharkie/long-idle/10.png',
+        'img/sharkie/long-idle/11.png',
+        'img/sharkie/long-idle/12.png',
+        'img/sharkie/long-idle/13.png',
+        'img/sharkie/long-idle/14.png'
+    ];
+
+    IMAGES_DEATH = [
+        'img/sharkie/death/1.png',
+        'img/sharkie/death/2.png',
+        'img/sharkie/death/3.png',
+        'img/sharkie/death/4.png',
+        'img/sharkie/death/5.png',
+        'img/sharkie/death/6.png',
+        'img/sharkie/death/7.png',
+        'img/sharkie/death/8.png',
+        'img/sharkie/death/9.png',
+        'img/sharkie/death/10.png',
+        'img/sharkie/death/11.png',
+        'img/sharkie/death/12.png'
+    ];
+
     IMAGES_FINSLAP = [
         'img/sharkie/attack/finslap/1.png',
         'img/sharkie/attack/finslap/2.png',
@@ -72,6 +104,13 @@ class Character extends MovableObject {
     bubbleTrapCooldown = 600;
     lastFinSlap = 0;
     lastBubbleTrap = 0;
+    maxHealth = 5;
+    health = 5;
+    hurtCooldown = 800;
+    lastHit = 0;
+    isDead = false;
+    longIdleDelay = 5000;
+    lastActivityTime = Date.now();
 
     constructor() {
         super();
@@ -80,6 +119,8 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_SWIM);
         this.loadImages(this.IMAGES_FINSLAP);
         this.loadImages(this.IMAGES_BUBBLETRAP);
+        this.loadImages(this.IMAGES_LONG_IDLE);
+        this.loadImages(this.IMAGES_DEATH);
         this.animate();
     }
 
@@ -90,8 +131,11 @@ class Character extends MovableObject {
     }
 
     handleMovement() {
-        if (!this.world) return;
+        if (!this.world || this.isDead) return;
         let kb = this.world.keyboard;
+        if (!gameStarted && (kb.RIGHT || kb.LEFT || kb.UP || kb.DOWN)) {
+            gameStarted = true;
+        }
         if (kb.RIGHT) {
             this.moveRight();
             this.otherDirection = false;
@@ -119,7 +163,7 @@ clampPosition() {
 }
 
     handleAttacks() {
-        if (!this.world || this.isAttacking) return;
+        if (!this.world || this.isAttacking || this.isDead) return;
         let kb = this.world.keyboard;
         let now = Date.now();
         if (kb.D && now - this.lastFinSlap > this.finSlapCooldown) {
@@ -157,6 +201,10 @@ clampPosition() {
 
     handleAnimation() {
         if (!this.world) return;
+        if (this.isDead) {
+            this.playDeathAnimation();
+            return;
+        }
         if (this.isAttacking) {
             this.playAttackAnimation();
             return;
@@ -164,10 +212,19 @@ clampPosition() {
         let kb = this.world.keyboard;
         let isMoving = kb.RIGHT || kb.LEFT || kb.UP || kb.DOWN;
         if (isMoving) {
+            this.lastActivityTime = Date.now();
             this.playAnimation(this.IMAGES_SWIM);
+        } else if (Date.now() - this.lastActivityTime > this.longIdleDelay) {
+            this.playAnimation(this.IMAGES_LONG_IDLE);
         } else {
             this.playAnimation(this.IMAGES_IDLE);
         }
+    }
+
+    playDeathAnimation() {
+        if (this.currentImage >= this.IMAGES_DEATH.length) return;
+        this.img = this.imageCache[this.IMAGES_DEATH[this.currentImage]];
+        this.currentImage++;
     }
 
     playAttackAnimation() {
@@ -179,5 +236,17 @@ clampPosition() {
         }
         this.img = this.imageCache[this.attackImages[this.currentImage]];
         this.currentImage++;
+    }
+    takeDamage(amount = 1) {
+        if (this.isDead) return;
+        let now = Date.now();
+        if (now - this.lastHit < this.hurtCooldown) return;
+        this.lastHit = now;
+        this.health -= amount;
+        if (this.health <= 0) {
+            this.health = 0;
+            this.isDead = true;
+            this.currentImage = 0;
+        }
     }
 }

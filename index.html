@@ -9,12 +9,34 @@
 <body>
     <div id="game-container">
         <canvas id="canvas" width="720" height="480"></canvas>
+
+        <div id="start-screen" class="overlay">
+            <div class="controls">
+                <img src="img/ui/screens/instructions-d.png" alt="Move with arrow keys, attack with D">
+                <img src="img/ui/screens/instructions-space.png" alt="Move with arrow keys, attack with Space">
+            </div>
+            <img id="start-button" class="button" src="img/ui/screens/start-button.png" alt="Start">
+            <button id="impressum-link" class="text-link">Impressum</button>
+        </div>
+
+        <div id="end-screen" class="overlay hidden">
+            <img id="end-title" src="" alt="">
+            <img id="try-again-button" class="button" src="img/ui/screens/try-again-button.png" alt="Try Again">
+        </div>
+
+        <div id="impressum-overlay" class="overlay hidden">
+            <div class="impressum-box">
+                <h2>Impressum</h2>
+                <button id="impressum-close" class="text-link">Close</button>
+            </div>
+        </div>
     </div>
 
     <script src="classes/drawable-object.class.js"></script>
     <script src="classes/movable-object.class.js"></script>
     <script src="classes/background-object.class.js"></script>
     <script src="classes/coin.class.js"></script>
+    <script src="classes/health-bar.class.js"></script>
     <script src="classes/bubble.class.js"></script>
     <script src="classes/pufferfish.class.js"></script>
     <script src="classes/jellyfish.class.js"></script>
@@ -27,4 +49,3 @@
     <script src="js/game.js"></script>
 </body>
 </html>
-d

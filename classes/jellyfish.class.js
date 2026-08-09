@@ -46,6 +46,7 @@ class JellyFish extends MovableObject {
 
     animate() {
         setInterval(() => {
+            if (!gameStarted) return;
             this.moveLeft();
             this.y += this.verticalSpeed * this.verticalDirection;
             if (this.y <= this.minY || this.y >= this.maxY) {

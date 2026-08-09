@@ -6,8 +6,11 @@ class World {
     keyboard;
     cameraX = 0;
     coinsCollected = 0;
+    healthBar = new HealthBar;
+    bossHealthBar = new HealthBar('img/ui/hp-boss', 550, 20);
     isBossFight = false;
     bubbles = [];
+    gameEnded = false;
 
     constructor(canvas, keyboard) {
         this.canvas = canvas;
@@ -36,6 +39,8 @@ class World {
         this.drawCharacter();
         this.ctx.restore();
         this.drawCoinCounter();
+        this.drawHealthBar();
+        this.drawBossHealthBar();
         this.checkCollisions();
         requestAnimationFrame(() => this.draw());
     }
@@ -93,20 +98,50 @@ class World {
     drawCoinCounter() {
         this.ctx.font = '20px sans-serif';
         this.ctx.fillStyle = 'white';
-        this.ctx.fillText('Coins: ' + this.coinsCollected, 20, 30);
+        this.ctx.fillText('Coins: ' + this.coinsCollected, 20, 85);
+    }
+
+    drawHealthBar() {
+        this.healthBar.setPercentage(this.character.health / this.character.maxHealth * 100);
+        this.healthBar.draw(this.ctx);
+    }
+
+    drawBossHealthBar() {
+        if (!this.isBossFight) return;
+        let boss = this.level.enemies.find(enemy => enemy instanceof EndBoss);
+        if (!boss) return;
+        this.bossHealthBar.setPercentage(boss.health / boss.maxHealth * 100);
+        this.bossHealthBar.draw(this.ctx);
     }
 
     checkCollisions() {
-        // During boss fight, only check collision with boss
         let enemiesToCheck = this.isBossFight
             ? this.level.enemies.filter(enemy => enemy instanceof EndBoss)
             : this.level.enemies;
         let harmfulEnemies = enemiesToCheck.filter(enemy => !(enemy instanceof EndBoss && enemy.isDefeated));
 
         this.character.isHurt = harmfulEnemies.some(enemy => this.character.isColliding(enemy));
+        if (this.character.isHurt) {
+            this.character.takeDamage(1);
+        }
         this.checkCoinCollection();
         this.checkMeleeHits();
         this.cleanupBubbles();
+        this.checkGameEnd();
+    }
+
+    checkGameEnd() {
+        if (this.gameEnded) return;
+        if (this.character.isDead && this.character.currentImage >= this.character.IMAGES_DEATH.length) {
+            this.gameEnded = true;
+            showEndScreen(false);
+            return;
+        }
+        let boss = this.level.enemies.find(enemy => enemy instanceof EndBoss);
+        if (boss && boss.isDefeated && boss.deathFrame >= boss.IMAGES_DEAD.length) {
+            this.gameEnded = true;
+            showEndScreen(true);
+        }
     }
 
     checkCoinCollection() {
