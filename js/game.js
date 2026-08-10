@@ -9,22 +9,46 @@ function init() {
     world = new World(canvas, keyboard);
 }
 
+function restartGame() {
+    if (world) world.destroy();
+    gameStarted = false;
+    keyboard.reset();
+    document.getElementById('end-screen').classList.add('hidden');
+    init();
+}
+
+function backToMenu() {
+    if (world) world.destroy();
+    gameStarted = false;
+    keyboard.reset();
+    document.getElementById('end-screen').classList.add('hidden');
+    document.getElementById('start-screen').classList.remove('hidden');
+}
+
 function showEndScreen(won) {
     let endScreen = document.getElementById('end-screen');
-    let endTitle = document.getElementById('end-title');
     if (won) {
-        endScreen.style.backgroundImage = "url('img/ui/screens/you-win.png')";
-        endScreen.style.backgroundColor = 'transparent';
-        endScreen.classList.add('win-mode');
-        endTitle.classList.add('hidden');
+        showWinScreen(endScreen);
     } else {
-        endScreen.style.backgroundImage = 'none';
-        endScreen.style.backgroundColor = '';
-        endScreen.classList.remove('win-mode');
-        endTitle.src = 'img/ui/screens/game-over-title.png';
-        endTitle.classList.remove('hidden');
+        showLoseScreen(endScreen);
     }
     endScreen.classList.remove('hidden');
+}
+
+function showWinScreen(endScreen) {
+    endScreen.style.backgroundImage = "url('" + IMAGE_HUB.UI.SCREENS.YOU_WIN + "')";
+    endScreen.style.backgroundColor = 'transparent';
+    endScreen.classList.add('win-mode');
+    document.getElementById('end-title').classList.add('hidden');
+}
+
+function showLoseScreen(endScreen) {
+    endScreen.style.backgroundImage = 'none';
+    endScreen.style.backgroundColor = '';
+    endScreen.classList.remove('win-mode');
+    let endTitle = document.getElementById('end-title');
+    endTitle.src = IMAGE_HUB.UI.SCREENS.GAME_OVER_TITLE;
+    endTitle.classList.remove('hidden');
 }
 
 function setupMenus() {
@@ -32,14 +56,21 @@ function setupMenus() {
         document.getElementById('start-screen').classList.add('hidden');
         init();
     });
-    document.getElementById('try-again-button').addEventListener('click', () => {
-        location.reload();
-    });
+    document.getElementById('try-again-button').addEventListener('click', restartGame);
+    document.getElementById('back-to-menu-button').addEventListener('click', backToMenu);
+    setupImpressum();
+}
+
+function setupImpressum() {
+    let overlay = document.getElementById('impressum-overlay');
     document.getElementById('impressum-link').addEventListener('click', () => {
-        document.getElementById('impressum-overlay').classList.remove('hidden');
+        overlay.classList.remove('hidden');
     });
     document.getElementById('impressum-close').addEventListener('click', () => {
-        document.getElementById('impressum-overlay').classList.add('hidden');
+        overlay.classList.add('hidden');
+    });
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.add('hidden');
     });
 }
 

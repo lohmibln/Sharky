@@ -10,31 +10,30 @@ class JellyFish extends MovableObject {
     offsetBottom = 12;
     offsetLeft = 6;
     offsetRight = 6;
+    isDying = false;
+    deathFrame = 0;
+    markedForRemoval = false;
+    intervalIds = [];
 
-    IMAGES_REGULAR = [
-        'img/enemies/jellyfish/regular/1.png',
-        'img/enemies/jellyfish/regular/2.png',
-        'img/enemies/jellyfish/regular/3.png',
-        'img/enemies/jellyfish/regular/4.png'
-    ];
-
-    IMAGES_DANGEROUS = [
-        'img/enemies/jellyfish/dangerous/1.png',
-        'img/enemies/jellyfish/dangerous/2.png',
-        'img/enemies/jellyfish/dangerous/3.png',
-        'img/enemies/jellyfish/dangerous/4.png'
-    ];
+    IMAGES_REGULAR = IMAGE_HUB.JELLYFISH.REGULAR;
+    IMAGES_DANGEROUS = IMAGE_HUB.JELLYFISH.DANGEROUS;
+    IMAGES_DEAD_REGULAR = IMAGE_HUB.JELLYFISH.DEAD_REGULAR;
+    IMAGES_DEAD_DANGEROUS = IMAGE_HUB.JELLYFISH.DEAD_DANGEROUS;
 
     isDangerous;
     activeImages;
+    deadImages;
 
     constructor(isDangerous = false) {
         super();
         this.isDangerous = isDangerous;
         this.activeImages = isDangerous ? this.IMAGES_DANGEROUS : this.IMAGES_REGULAR;
+        this.deadImages = isDangerous ? this.IMAGES_DEAD_DANGEROUS : this.IMAGES_DEAD_REGULAR;
         this.loadImage(this.activeImages[0]);
         this.loadImages(this.IMAGES_REGULAR);
         this.loadImages(this.IMAGES_DANGEROUS);
+        this.loadImages(this.IMAGES_DEAD_REGULAR);
+        this.loadImages(this.IMAGES_DEAD_DANGEROUS);
         this.x = 600 + Math.random() * 4000;
         this.y = 50 + Math.random() * 300;
         this.speed = 0.3 + Math.random() * 0.8;
@@ -45,14 +44,45 @@ class JellyFish extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
-            if (!gameStarted) return;
-            this.moveLeft();
-            this.y += this.verticalSpeed * this.verticalDirection;
-            if (this.y <= this.minY || this.y >= this.maxY) {
-                this.verticalDirection *= -1;
-            }
-        }, 1000 / 60);
-        setInterval(() => this.playAnimation(this.activeImages), 250);
+        this.intervalIds = [
+            setInterval(() => this.updatePosition(), 1000 / 60),
+            setInterval(() => this.updateAnimation(), 250)
+        ];
+    }
+
+    destroy() {
+        this.intervalIds.forEach(id => clearInterval(id));
+    }
+
+    updatePosition() {
+        if (!gameStarted || this.isDying) return;
+        this.moveLeft();
+        this.y += this.verticalSpeed * this.verticalDirection;
+        if (this.y <= this.minY || this.y >= this.maxY) {
+            this.verticalDirection *= -1;
+        }
+    }
+
+    updateAnimation() {
+        if (this.isDying) {
+            this.playDeathAnimation();
+        } else {
+            this.playAnimation(this.activeImages);
+        }
+    }
+
+    startDying() {
+        if (this.isDying) return;
+        this.isDying = true;
+        this.deathFrame = 0;
+    }
+
+    playDeathAnimation() {
+        if (this.deathFrame >= this.deadImages.length) {
+            this.markedForRemoval = true;
+            return;
+        }
+        this.img = this.imageCache[this.deadImages[this.deathFrame]];
+        this.deathFrame++;
     }
 }

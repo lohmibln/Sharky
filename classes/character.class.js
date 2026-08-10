@@ -10,95 +10,20 @@ class Character extends MovableObject {
     offsetRight = 40;
     isHurt = false;
 
-    IMAGES_IDLE = [
-        'img/sharkie/idle/1.png',
-        'img/sharkie/idle/2.png',
-        'img/sharkie/idle/3.png',
-        'img/sharkie/idle/4.png',
-        'img/sharkie/idle/5.png',
-        'img/sharkie/idle/6.png',
-        'img/sharkie/idle/7.png',
-        'img/sharkie/idle/8.png',
-        'img/sharkie/idle/9.png',
-        'img/sharkie/idle/10.png',
-        'img/sharkie/idle/11.png',
-        'img/sharkie/idle/12.png',
-        'img/sharkie/idle/13.png',
-        'img/sharkie/idle/14.png',
-        'img/sharkie/idle/15.png',
-        'img/sharkie/idle/16.png',
-        'img/sharkie/idle/17.png',
-        'img/sharkie/idle/18.png'
-    ];
-
-    IMAGES_SWIM = [
-        'img/sharkie/swim/1.png',
-        'img/sharkie/swim/2.png',
-        'img/sharkie/swim/3.png',
-        'img/sharkie/swim/4.png',
-        'img/sharkie/swim/5.png',
-        'img/sharkie/swim/6.png'
-    ];
-
-    IMAGES_LONG_IDLE = [
-        'img/sharkie/long-idle/1.png',
-        'img/sharkie/long-idle/2.png',
-        'img/sharkie/long-idle/3.png',
-        'img/sharkie/long-idle/4.png',
-        'img/sharkie/long-idle/5.png',
-        'img/sharkie/long-idle/6.png',
-        'img/sharkie/long-idle/7.png',
-        'img/sharkie/long-idle/8.png',
-        'img/sharkie/long-idle/9.png',
-        'img/sharkie/long-idle/10.png',
-        'img/sharkie/long-idle/11.png',
-        'img/sharkie/long-idle/12.png',
-        'img/sharkie/long-idle/13.png',
-        'img/sharkie/long-idle/14.png'
-    ];
-
-    IMAGES_DEATH = [
-        'img/sharkie/death/1.png',
-        'img/sharkie/death/2.png',
-        'img/sharkie/death/3.png',
-        'img/sharkie/death/4.png',
-        'img/sharkie/death/5.png',
-        'img/sharkie/death/6.png',
-        'img/sharkie/death/7.png',
-        'img/sharkie/death/8.png',
-        'img/sharkie/death/9.png',
-        'img/sharkie/death/10.png',
-        'img/sharkie/death/11.png',
-        'img/sharkie/death/12.png'
-    ];
-
-    IMAGES_FINSLAP = [
-        'img/sharkie/attack/finslap/1.png',
-        'img/sharkie/attack/finslap/2.png',
-        'img/sharkie/attack/finslap/3.png',
-        'img/sharkie/attack/finslap/4.png',
-        'img/sharkie/attack/finslap/5.png',
-        'img/sharkie/attack/finslap/6.png',
-        'img/sharkie/attack/finslap/7.png',
-        'img/sharkie/attack/finslap/8.png'
-    ];
-
-    IMAGES_BUBBLETRAP = [
-        'img/sharkie/attack/bubbletrap/1.png',
-        'img/sharkie/attack/bubbletrap/2.png',
-        'img/sharkie/attack/bubbletrap/3.png',
-        'img/sharkie/attack/bubbletrap/4.png',
-        'img/sharkie/attack/bubbletrap/5.png',
-        'img/sharkie/attack/bubbletrap/6.png',
-        'img/sharkie/attack/bubbletrap/7.png',
-        'img/sharkie/attack/bubbletrap/8.png'
-    ];
+    IMAGES_IDLE = IMAGE_HUB.CHARACTER.IDLE;
+    IMAGES_SWIM = IMAGE_HUB.CHARACTER.SWIM;
+    IMAGES_LONG_IDLE = IMAGE_HUB.CHARACTER.LONG_IDLE;
+    IMAGES_DEATH = IMAGE_HUB.CHARACTER.DEATH;
+    IMAGES_HURT = IMAGE_HUB.CHARACTER.HURT;
+    IMAGES_FINSLAP = IMAGE_HUB.CHARACTER.FINSLAP;
+    IMAGES_BUBBLETRAP = IMAGE_HUB.CHARACTER.BUBBLETRAP;
 
     world;
     otherDirection = false;
     isAttacking = false;
     isFinSlapping = false;
     finSlapHasHit = false;
+    isPlayingHurtAnim = false;
     attackImages = [];
     finSlapCooldown = 500;
     bubbleTrapCooldown = 600;
@@ -111,6 +36,7 @@ class Character extends MovableObject {
     isDead = false;
     longIdleDelay = 5000;
     lastActivityTime = Date.now();
+    intervalIds = [];
 
     constructor() {
         super();
@@ -121,21 +47,38 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_BUBBLETRAP);
         this.loadImages(this.IMAGES_LONG_IDLE);
         this.loadImages(this.IMAGES_DEATH);
+        this.loadImages(this.IMAGES_HURT);
         this.animate();
     }
 
     animate() {
-        setInterval(() => this.handleMovement(), 1000 / 60);
-        setInterval(() => this.handleAttacks(), 1000 / 60);
-        setInterval(() => this.handleAnimation(), 100);
+        this.intervalIds = [
+            setInterval(() => this.handleMovement(), 1000 / 60),
+            setInterval(() => this.handleAttacks(), 1000 / 60),
+            setInterval(() => this.handleAnimation(), 100)
+        ];
+    }
+
+    destroy() {
+        this.intervalIds.forEach(id => clearInterval(id));
     }
 
     handleMovement() {
         if (!this.world || this.isDead) return;
         let kb = this.world.keyboard;
+        this.checkGameStart(kb);
+        this.applyKeyboardMovement(kb);
+        this.clampPosition();
+        this.world.cameraX = -this.x + 100;
+    }
+
+    checkGameStart(kb) {
         if (!gameStarted && (kb.RIGHT || kb.LEFT || kb.UP || kb.DOWN)) {
             gameStarted = true;
         }
+    }
+
+    applyKeyboardMovement(kb) {
         if (kb.RIGHT) {
             this.moveRight();
             this.otherDirection = false;
@@ -144,23 +87,17 @@ class Character extends MovableObject {
             this.moveLeft();
             this.otherDirection = true;
         }
-        if (kb.UP) {
-            this.moveUp();
-        }
-        if (kb.DOWN) {
-            this.moveDown();
-        }
-        this.clampPosition();
-        this.world.cameraX = -this.x + 100;
+        if (kb.UP) this.moveUp();
+        if (kb.DOWN) this.moveDown();
     }
 
-clampPosition() {
-    if (this.y < 0) this.y = 0;
-    if (this.y > 280) this.y = 280;
-    if (this.x < 0) this.x = 0;
-    let maxX = this.world.level.levelEndX - this.width;
-    if (this.x > maxX) this.x = maxX;
-}
+    clampPosition() {
+        if (this.y < 0) this.y = 0;
+        if (this.y > 280) this.y = 280;
+        if (this.x < 0) this.x = 0;
+        let maxX = this.world.level.levelEndX - this.width;
+        if (this.x > maxX) this.x = maxX;
+    }
 
     handleAttacks() {
         if (!this.world || this.isAttacking || this.isDead) return;
@@ -205,10 +142,18 @@ clampPosition() {
             this.playDeathAnimation();
             return;
         }
+        if (this.isPlayingHurtAnim) {
+            this.playHurtAnimation();
+            return;
+        }
         if (this.isAttacking) {
             this.playAttackAnimation();
             return;
         }
+        this.playIdleOrSwim();
+    }
+
+    playIdleOrSwim() {
         let kb = this.world.keyboard;
         let isMoving = kb.RIGHT || kb.LEFT || kb.UP || kb.DOWN;
         if (isMoving) {
@@ -219,6 +164,16 @@ clampPosition() {
         } else {
             this.playAnimation(this.IMAGES_IDLE);
         }
+    }
+
+    playHurtAnimation() {
+        if (this.currentImage >= this.IMAGES_HURT.length) {
+            this.isPlayingHurtAnim = false;
+            this.currentImage = 0;
+            return;
+        }
+        this.img = this.imageCache[this.IMAGES_HURT[this.currentImage]];
+        this.currentImage++;
     }
 
     playDeathAnimation() {
@@ -237,6 +192,7 @@ clampPosition() {
         this.img = this.imageCache[this.attackImages[this.currentImage]];
         this.currentImage++;
     }
+
     takeDamage(amount = 1) {
         if (this.isDead) return;
         let now = Date.now();
@@ -246,7 +202,9 @@ clampPosition() {
         if (this.health <= 0) {
             this.health = 0;
             this.isDead = true;
-            this.currentImage = 0;
+        } else {
+            this.isPlayingHurtAnim = true;
         }
+        this.currentImage = 0;
     }
 }

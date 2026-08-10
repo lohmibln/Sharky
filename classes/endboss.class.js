@@ -4,7 +4,7 @@ class EndBoss extends MovableObject {
     y = 100;
     speed = 1.4;
     stopDistance = 100;
-    activationDistance = 800;  
+    activationDistance = 800;
     isActive = false;
     otherDirection = false;
     world;
@@ -17,32 +17,11 @@ class EndBoss extends MovableObject {
     offsetLeft = 16;
     offsetRight = 19;
 
-    IMAGES_FLOATING = [
-        'img/enemies/boss/floating/1.png',
-        'img/enemies/boss/floating/2.png',
-        'img/enemies/boss/floating/3.png',
-        'img/enemies/boss/floating/4.png',
-        'img/enemies/boss/floating/5.png',
-        'img/enemies/boss/floating/6.png',
-        'img/enemies/boss/floating/7.png',
-        'img/enemies/boss/floating/8.png',
-        'img/enemies/boss/floating/9.png',
-        'img/enemies/boss/floating/10.png',
-        'img/enemies/boss/floating/11.png',
-        'img/enemies/boss/floating/12.png',
-        'img/enemies/boss/floating/13.png'
-    ];
-
-    IMAGES_DEAD = [
-        'img/enemies/boss/dead/1.png',
-        'img/enemies/boss/dead/2.png',
-        'img/enemies/boss/dead/3.png',
-        'img/enemies/boss/dead/4.png',
-        'img/enemies/boss/dead/5.png',
-        'img/enemies/boss/dead/6.png'
-    ];
+    IMAGES_FLOATING = IMAGE_HUB.BOSS.FLOATING;
+    IMAGES_DEAD = IMAGE_HUB.BOSS.DEAD;
 
     deathFrame = 0;
+    intervalIds = [];
 
     constructor(x) {
         super();
@@ -54,8 +33,14 @@ class EndBoss extends MovableObject {
     }
 
     animate() {
-        setInterval(() => this.chaseCharacter(), 1000 / 60);
-        setInterval(() => this.updateAnimation(), 150);
+        this.intervalIds = [
+            setInterval(() => this.chaseCharacter(), 1000 / 60),
+            setInterval(() => this.updateAnimation(), 150)
+        ];
+    }
+
+    destroy() {
+        this.intervalIds.forEach(id => clearInterval(id));
     }
 
     updateAnimation() {
@@ -76,21 +61,18 @@ class EndBoss extends MovableObject {
         if (!this.world || this.isDefeated || !gameStarted) return;
         let distanceX = this.world.character.x - this.x;
         let distanceY = this.world.character.y - this.y;
+        this.checkActivation(distanceX);
+        if (!this.isActive) return;
+        if (Math.abs(distanceX) > this.stopDistance) {
+            this.moveTowardCharacter(distanceX);
+        }
+        this.followVertically(distanceY);
+    }
 
-        // Check if player is within activation range
+    checkActivation(distanceX) {
         if (Math.abs(distanceX) < this.activationDistance) {
             this.isActive = true;
-            // Also trigger the world's boss fight flag
-            if (this.world) {
-                this.world.isBossFight = true;
-            }
-        }
-
-        if (this.isActive) {
-            if (Math.abs(distanceX) > this.stopDistance) {
-                this.moveTowardCharacter(distanceX);
-            }
-            this.followVertically(distanceY);
+            this.world.isBossFight = true;
         }
     }
 

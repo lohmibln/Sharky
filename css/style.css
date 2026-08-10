@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'Luckiest Guy';
+    src: url('../fonts/LuckiestGuy-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -14,6 +21,7 @@ body {
     background-size: cover;
     background-position: center;
     overflow: hidden;
+    font-family: 'Luckiest Guy', sans-serif;
 }
 
 #game-container {
@@ -70,6 +78,14 @@ canvas {
     text-decoration: underline;
     cursor: pointer;
     font-size: 14px;
+    font-family: 'Luckiest Guy', sans-serif;
+}
+
+.end-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
 #end-title {

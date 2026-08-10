@@ -6,12 +6,8 @@ class Coin extends MovableObject {
     offsetLeft = 2;
     offsetRight = 2;
 
-    IMAGES_SPIN = [
-        'img/coins/1.png',
-        'img/coins/2.png',
-        'img/coins/3.png',
-        'img/coins/4.png'
-    ];
+    IMAGES_SPIN = IMAGE_HUB.COIN.SPIN;
+    intervalId;
 
     constructor(x, y) {
         super();
@@ -23,6 +19,10 @@ class Coin extends MovableObject {
     }
 
     animate() {
-        setInterval(() => this.playAnimation(this.IMAGES_SPIN), 200);
+        this.intervalId = setInterval(() => this.playAnimation(this.IMAGES_SPIN), 200);
+    }
+
+    destroy() {
+        clearInterval(this.intervalId);
     }
 }

@@ -16,7 +16,7 @@ class Bubble extends MovableObject {
         this.y = y;
         this.direction = direction;
         this.spawnTime = Date.now();
-        this.loadImage('img/bubble/bubble.png');
+        this.loadImage(IMAGE_HUB.BUBBLE);
         this.animate();
     }
 
@@ -37,13 +37,13 @@ class Bubble extends MovableObject {
     }
 
     checkHit() {
-        let hit = this.world.level.enemies.find(enemy => this.isColliding(enemy));
+        let hit = this.world.level.enemies.find(enemy => !enemy.isDying && this.isColliding(enemy));
         if (!hit) return;
         this.remove();
         if (hit instanceof EndBoss) {
             hit.takeDamage(1);
         } else {
-            this.world.level.enemies = this.world.level.enemies.filter(enemy => enemy !== hit);
+            hit.startDying();
         }
     }
 

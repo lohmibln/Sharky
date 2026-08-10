@@ -9,21 +9,29 @@ function createLevel1() {
 
 function createEnemies() {
     let enemies = [];
-    let pufferPositions = spawnPositions(6, 400, 5800);
-    pufferPositions.forEach(x => {
+    addPufferfish(enemies);
+    addJellyfish(enemies);
+    enemies.push(new EndBoss(6100));
+    return enemies;
+}
+
+function addPufferfish(enemies) {
+    let positions = spawnPositions(6, 400, 5800);
+    positions.forEach(x => {
         let fish = new PufferFish();
         fish.x = x;
         enemies.push(fish);
     });
-    let jellyPositions = spawnPositions(6, 400, 5800);
+}
+
+function addJellyfish(enemies) {
+    let positions = spawnPositions(6, 400, 5800);
     let dangerFlags = shuffle([true, true, false, false, false, false]);
-    jellyPositions.forEach((x, i) => {
+    positions.forEach((x, i) => {
         let jelly = new JellyFish(dangerFlags[i]);
         jelly.x = x;
         enemies.push(jelly);
     });
-    enemies.push(new EndBoss(6100));
-    return enemies;
 }
 
 function spawnPositions(count, rangeStart, rangeEnd) {
@@ -60,15 +68,18 @@ function createBackgrounds() {
     let segmentWidth = 720;
     let segments = 10;
     for (let i = -1; i < segments; i++) {
-        let x = i * segmentWidth;
-        let variant = (i % 2 === 0) ? '1' : '2';
-        objects.push(
-            new BackgroundObject('img/background/water/' + variant + '.png', x),
-            new BackgroundObject('img/background/fondo2/' + variant + '.png', x),
-            new BackgroundObject('img/background/fondo1/' + variant + '.png', x),
-            new BackgroundObject('img/background/floor/' + variant + '.png', x),
-            new BackgroundObject('img/background/light/' + variant + '.png', x)
-        );
+        let variant = i % 2 === 0 ? 0 : 1;
+        objects.push(...backgroundLayersAt(i * segmentWidth, variant));
     }
     return objects;
+}
+
+function backgroundLayersAt(x, variant) {
+    return [
+        new BackgroundObject(IMAGE_HUB.BACKGROUND.WATER[variant], x),
+        new BackgroundObject(IMAGE_HUB.BACKGROUND.FONDO2[variant], x),
+        new BackgroundObject(IMAGE_HUB.BACKGROUND.FONDO1[variant], x),
+        new BackgroundObject(IMAGE_HUB.BACKGROUND.FLOOR[variant], x),
+        new BackgroundObject(IMAGE_HUB.BACKGROUND.LIGHT[variant], x)
+    ];
 }
