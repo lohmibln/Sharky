@@ -64,7 +64,7 @@ class Character extends MovableObject {
     }
 
     handleMovement() {
-        if (!this.world || this.isDead) return;
+        if (!this.world || this.isDead || this.world.gameEnded) return;
         let kb = this.world.keyboard;
         this.checkGameStart(kb);
         this.applyKeyboardMovement(kb);
@@ -100,7 +100,7 @@ class Character extends MovableObject {
     }
 
     handleAttacks() {
-        if (!this.world || this.isAttacking || this.isDead) return;
+        if (!this.world || this.isAttacking || this.isDead || this.world.gameEnded) return;
         let kb = this.world.keyboard;
         let now = Date.now();
         if (kb.D && now - this.lastFinSlap > this.finSlapCooldown) {
