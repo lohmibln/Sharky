@@ -47,8 +47,9 @@ const IMAGE_HUB = {
         SCREENS: {
             PAGE_BACKGROUND: 'img/ui/screens/page-background.png',
             START_BUTTON: 'img/ui/screens/start-button.png',
-            INSTRUCTIONS_D: 'img/ui/screens/instructions-d.png',
-            INSTRUCTIONS_SPACE: 'img/ui/screens/instructions-space.png',
+            KEY_ARROWS: 'img/ui/screens/key-arrows.png',
+            KEY_D: 'img/ui/screens/key-d.png',
+            KEY_SPACE: 'img/ui/screens/key-space.png',
             GAME_OVER_TITLE: 'img/ui/screens/game-over-title.png',
             YOU_WIN: 'img/ui/screens/you-win.png',
             TRY_AGAIN_BUTTON: 'img/ui/screens/try-again-button.png'

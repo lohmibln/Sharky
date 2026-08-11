@@ -7,6 +7,7 @@ function init() {
     canvas = document.getElementById('canvas');
     createLevel1();
     world = new World(canvas, keyboard);
+    document.getElementById('mobile-controls').classList.remove('hidden');
 }
 
 function restartGame() {
@@ -23,6 +24,7 @@ function backToMenu() {
     keyboard.reset();
     document.getElementById('end-screen').classList.add('hidden');
     document.getElementById('start-screen').classList.remove('hidden');
+    document.getElementById('mobile-controls').classList.add('hidden');
 }
 
 function showEndScreen(won) {
@@ -33,6 +35,7 @@ function showEndScreen(won) {
         showLoseScreen(endScreen);
     }
     endScreen.classList.remove('hidden');
+    document.getElementById('mobile-controls').classList.add('hidden');
 }
 
 function showWinScreen(endScreen) {
@@ -59,6 +62,19 @@ function setupMenus() {
     document.getElementById('try-again-button').addEventListener('click', restartGame);
     document.getElementById('back-to-menu-button').addEventListener('click', backToMenu);
     setupImpressum();
+    setupMobileControls();
+}
+
+function setupMobileControls() {
+    document.querySelectorAll('.mobile-btn').forEach(bindMobileButton);
+}
+
+function bindMobileButton(btn) {
+    let key = btn.dataset.key;
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); keyboard[key] = true; });
+    btn.addEventListener('touchend', (e) => { e.preventDefault(); keyboard[key] = false; });
+    btn.addEventListener('touchcancel', (e) => { e.preventDefault(); keyboard[key] = false; });
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 
 function setupImpressum() {

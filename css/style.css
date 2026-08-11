@@ -20,16 +20,21 @@ body {
     background-image: url('../img/ui/screens/page-background.png');
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     overflow: hidden;
     font-family: 'Luckiest Guy', sans-serif;
 }
 
 #game-container {
     position: relative;
+    width: min(720px, 100vw, calc(100vh * 720 / 480));
+    aspect-ratio: 720 / 480;
 }
 
 canvas {
     display: block;
+    width: 100%;
+    height: 100%;
     border-radius: 4px;
     box-shadow: 0 0 30px rgba(0, 100, 200, 0.3);
 }
@@ -37,6 +42,7 @@ canvas {
 .overlay {
     position: absolute;
     inset: 0;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -52,17 +58,37 @@ canvas {
     display: none;
 }
 
-.controls {
+.controls-box {
+    background: rgba(75, 26, 107, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 16px 24px;
     display: flex;
-    gap: 12px;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.controls img {
-    width: 220px;
+.control-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: white;
+    font-size: 16px;
+}
+
+.control-row img {
+    height: min(46px, 8vh);
+    width: auto;
 }
 
 .button {
-    width: 160px;
+    width: min(160px, 35vw);
     cursor: pointer;
     transition: transform 0.1s ease;
 }
@@ -89,7 +115,7 @@ canvas {
 }
 
 #end-title {
-    width: 300px;
+    width: min(300px, 45vw);
 }
 
 #end-title.hidden {
@@ -116,4 +142,103 @@ canvas {
 
 .impressum-box .text-link {
     color: #222;
+}
+
+#mobile-controls {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#mobile-controls.hidden {
+    display: none;
+}
+
+.dpad {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(3, 44px);
+    pointer-events: auto;
+}
+
+.attack-pad {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.dpad-up { grid-column: 2; grid-row: 1; }
+.dpad-left { grid-column: 1; grid-row: 2; }
+.dpad-right { grid-column: 3; grid-row: 2; }
+.dpad-down { grid-column: 2; grid-row: 3; }
+
+.mobile-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: 2px solid white;
+    background: rgba(126, 232, 196, 0.85);
+    color: #4b1a6b;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.attack-btn {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    font-size: 10px;
+    text-align: center;
+    padding: 4px;
+}
+
+#rotate-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: #0a1628;
+    color: white;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    padding: 24px;
+}
+
+#rotate-overlay p {
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 20px;
+    max-width: 320px;
+}
+
+.rotate-icon {
+    font-size: 48px;
+}
+
+@media (hover: none) and (orientation: landscape) {
+    #mobile-controls {
+        display: block;
+    }
+}
+
+@media (hover: none) and (orientation: portrait) {
+    #rotate-overlay {
+        display: flex;
+    }
 }
