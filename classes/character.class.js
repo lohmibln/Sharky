@@ -38,6 +38,7 @@ class Character extends MovableObject {
     lastActivityTime = Date.now();
     intervalIds = [];
 
+    /** Creates the player character and preloads every animation set it uses. */
     constructor() {
         super();
         this.loadImage(this.IMAGES_IDLE[0]);
@@ -51,6 +52,7 @@ class Character extends MovableObject {
         this.animate();
     }
 
+    /** Starts the movement, attack-input, and animation loops. */
     animate() {
         this.intervalIds = [
             setInterval(() => this.handleMovement(), 1000 / 60),
@@ -59,10 +61,12 @@ class Character extends MovableObject {
         ];
     }
 
+    /** Stops all of the character's timers (called when the level is torn down). */
     destroy() {
         this.intervalIds.forEach(id => clearInterval(id));
     }
 
+    /** Reads keyboard input and moves the character, unless dead or the game has ended. */
     handleMovement() {
         if (!this.world || this.isDead || this.world.gameEnded) return;
         let kb = this.world.keyboard;
@@ -72,12 +76,21 @@ class Character extends MovableObject {
         this.world.cameraX = -this.x + 100;
     }
 
+    /**
+     * Flags the very first movement input of the playthrough, which is what
+     * releases enemies to start moving.
+     * @param {Keyboard} kb - The shared keyboard input state.
+     */
     checkGameStart(kb) {
         if (!gameStarted && (kb.RIGHT || kb.LEFT || kb.UP || kb.DOWN)) {
             gameStarted = true;
         }
     }
 
+    /**
+     * Applies movement for whichever directional keys are currently held.
+     * @param {Keyboard} kb - The shared keyboard input state.
+     */
     applyKeyboardMovement(kb) {
         if (kb.RIGHT) {
             this.moveRight();
@@ -91,6 +104,7 @@ class Character extends MovableObject {
         if (kb.DOWN) this.moveDown();
     }
 
+    /** Keeps the character within the level's vertical and horizontal bounds. */
     clampPosition() {
         if (this.y < 0) this.y = 0;
         if (this.y > 280) this.y = 280;
@@ -99,6 +113,7 @@ class Character extends MovableObject {
         if (this.x > maxX) this.x = maxX;
     }
 
+    /** Checks attack key presses and starts an attack if its cooldown has passed. */
     handleAttacks() {
         if (!this.world || this.isAttacking || this.isDead || this.world.gameEnded) return;
         let kb = this.world.keyboard;
@@ -112,6 +127,7 @@ class Character extends MovableObject {
         }
     }
 
+    /** Begins the fin slap melee attack animation. */
     startFinSlap() {
         this.isAttacking = true;
         this.isFinSlapping = true;
@@ -121,6 +137,7 @@ class Character extends MovableObject {
         soundManager.play('SLAP');
     }
 
+    /** Begins the bubble trap cast animation and fires the projectile. */
     startBubbleTrap() {
         this.isAttacking = true;
         this.attackImages = this.IMAGES_BUBBLETRAP;
@@ -128,6 +145,7 @@ class Character extends MovableObject {
         this.shootBubble();
     }
 
+    /** Spawns a bubble projectile in front of the character, facing the way they're looking. */
     shootBubble() {
         let direction = this.otherDirection ? -1 : 1;
         let x = this.otherDirection ? this.x : this.x + this.width;
@@ -138,6 +156,7 @@ class Character extends MovableObject {
         soundManager.play('BUBBLE');
     }
 
+    /** Picks which animation to play this frame, in priority order. */
     handleAnimation() {
         if (!this.world) return;
         if (this.isDead) {
@@ -155,6 +174,7 @@ class Character extends MovableObject {
         this.playIdleOrSwim();
     }
 
+    /** Plays swim, long-idle, or regular idle animation depending on recent input. */
     playIdleOrSwim() {
         let kb = this.world.keyboard;
         let isMoving = kb.RIGHT || kb.LEFT || kb.UP || kb.DOWN;
@@ -168,6 +188,7 @@ class Character extends MovableObject {
         }
     }
 
+    /** Plays the hurt animation once, then returns control to normal animation. */
     playHurtAnimation() {
         if (this.currentImage >= this.IMAGES_HURT.length) {
             this.isPlayingHurtAnim = false;
@@ -178,12 +199,14 @@ class Character extends MovableObject {
         this.currentImage++;
     }
 
+    /** Plays the death animation once and freezes on the last frame. */
     playDeathAnimation() {
         if (this.currentImage >= this.IMAGES_DEATH.length) return;
         this.img = this.imageCache[this.IMAGES_DEATH[this.currentImage]];
         this.currentImage++;
     }
 
+    /** Plays the current attack animation once, then returns to normal animation. */
     playAttackAnimation() {
         if (this.currentImage >= this.attackImages.length) {
             this.isAttacking = false;
@@ -195,6 +218,11 @@ class Character extends MovableObject {
         this.currentImage++;
     }
 
+    /**
+     * Applies damage (respecting the hit cooldown) and triggers either the
+     * hurt animation or death, depending on remaining health.
+     * @param {number} [amount=1] - How much health to remove.
+     */
     takeDamage(amount = 1) {
         if (this.isDead) return;
         let now = Date.now();

@@ -1,3 +1,4 @@
+/** Central lookup for every sound path used in the game. */
 const AUDIO_HUB = {
     BG: 'sounds/bg.mp3',
     BUBBLE: 'sounds/bubble.mp3',

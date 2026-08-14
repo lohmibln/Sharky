@@ -1,3 +1,9 @@
+/**
+ * Builds a sequential list of numbered image paths, e.g. folder/1.png, folder/2.png, ...
+ * @param {string} folder - Folder containing the numbered frames.
+ * @param {number} count - How many numbered frames exist.
+ * @returns {string[]} The generated list of paths.
+ */
 function numberedPaths(folder, count) {
     let paths = [];
     for (let i = 1; i <= count; i++) {
@@ -6,6 +12,7 @@ function numberedPaths(folder, count) {
     return paths;
 }
 
+/** Central lookup for every image path used in the game, grouped by entity. */
 const IMAGE_HUB = {
     CHARACTER: {
         IDLE: numberedPaths('img/sharkie/idle', 18),

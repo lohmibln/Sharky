@@ -1,5 +1,6 @@
 let level1;
 
+/** Builds level 1's enemies, backgrounds, and coins into a fresh Level instance. */
 function createLevel1() {
     let enemies = createEnemies();
     let backgrounds = createBackgrounds();
@@ -7,6 +8,10 @@ function createLevel1() {
     level1 = new Level(enemies, backgrounds, coins);
 }
 
+/**
+ * Builds the full enemy list for the level: pufferfish, jellyfish, and the boss.
+ * @returns {Array} All enemies for level 1.
+ */
 function createEnemies() {
     let enemies = [];
     addPufferfish(enemies);
@@ -15,6 +20,10 @@ function createEnemies() {
     return enemies;
 }
 
+/**
+ * Creates and evenly spaces 6 pufferfish across the level.
+ * @param {Array} enemies - Enemy list to push the new pufferfish into.
+ */
 function addPufferfish(enemies) {
     let positions = spawnPositions(6, 400, 5800);
     positions.forEach(x => {
@@ -24,6 +33,11 @@ function addPufferfish(enemies) {
     });
 }
 
+/**
+ * Creates and evenly spaces 6 jellyfish across the level, with 2 of them
+ * randomly chosen to be the dangerous variant.
+ * @param {Array} enemies - Enemy list to push the new jellyfish into.
+ */
 function addJellyfish(enemies) {
     let positions = spawnPositions(6, 400, 5800);
     let dangerFlags = shuffle([true, true, false, false, false, false]);
@@ -34,6 +48,14 @@ function addJellyfish(enemies) {
     });
 }
 
+/**
+ * Splits a range into equal segments and picks one random point inside each,
+ * so spawn positions are spread out instead of clumping randomly.
+ * @param {number} count - How many positions to generate.
+ * @param {number} rangeStart - Start of the spawnable range.
+ * @param {number} rangeEnd - End of the spawnable range.
+ * @returns {number[]} One x-position per segment.
+ */
 function spawnPositions(count, rangeStart, rangeEnd) {
     let positions = [];
     let segmentSize = (rangeEnd - rangeStart) / count;
@@ -44,6 +66,11 @@ function spawnPositions(count, rangeStart, rangeEnd) {
     return positions;
 }
 
+/**
+ * Returns a shuffled copy of an array (Fisher-Yates).
+ * @param {Array} array - Array to shuffle.
+ * @returns {Array} A new, randomly-ordered array.
+ */
 function shuffle(array) {
     let arr = array.slice();
     for (let i = arr.length - 1; i > 0; i--) {
@@ -53,6 +80,10 @@ function shuffle(array) {
     return arr;
 }
 
+/**
+ * Lays out 20 coins along the level with some random jitter.
+ * @returns {Coin[]} All coins for level 1.
+ */
 function createCoins() {
     let coins = [];
     for (let i = 0; i < 20; i++) {
@@ -63,6 +94,11 @@ function createCoins() {
     return coins;
 }
 
+/**
+ * Builds the full 5-layer parallax background across the whole level,
+ * alternating between two tile variants so the repeat isn't obvious.
+ * @returns {BackgroundObject[]} Every background tile for the level.
+ */
 function createBackgrounds() {
     let objects = [];
     let segmentWidth = 720;
@@ -74,6 +110,13 @@ function createBackgrounds() {
     return objects;
 }
 
+/**
+ * Builds the 5 stacked background layers (water/fondo2/fondo1/floor/light)
+ * for one screen-width segment.
+ * @param {number} x - World x-position for this segment.
+ * @param {number} variant - Which tile variant (0 or 1) to use.
+ * @returns {BackgroundObject[]} The 5 layers for this segment.
+ */
 function backgroundLayersAt(x, variant) {
     return [
         new BackgroundObject(IMAGE_HUB.BACKGROUND.WATER[variant], x),

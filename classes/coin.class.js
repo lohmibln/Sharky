@@ -9,6 +9,11 @@ class Coin extends MovableObject {
     IMAGES_SPIN = IMAGE_HUB.COIN.SPIN;
     intervalId;
 
+    /**
+     * Creates a collectible spinning coin at a fixed position.
+     * @param {number} x - World x-position.
+     * @param {number} y - World y-position.
+     */
     constructor(x, y) {
         super();
         this.x = x;
@@ -18,10 +23,12 @@ class Coin extends MovableObject {
         this.animate();
     }
 
+    /** Starts the looping spin animation. */
     animate() {
         this.intervalId = setInterval(() => this.playAnimation(this.IMAGES_SPIN), 200);
     }
 
+    /** Stops the coin's animation timer (called when the level is torn down). */
     destroy() {
         clearInterval(this.intervalId);
     }

@@ -176,6 +176,7 @@ canvas {
     padding: 24px 32px;
     border-radius: 8px;
     min-width: 240px;
+    max-width: 320px;
     text-align: center;
 }
 
@@ -183,8 +184,16 @@ canvas {
     margin-bottom: 16px;
 }
 
+.impressum-box p {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
 .impressum-box .text-link {
     color: #222;
+    margin-top: 8px;
 }
 
 #mobile-controls {

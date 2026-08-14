@@ -4,6 +4,7 @@ let keyboard = new Keyboard();
 let soundManager = new SoundManager();
 let gameStarted = false;
 
+/** Creates a fresh level and World, and starts the background music. */
 function init() {
     canvas = document.getElementById('canvas');
     createLevel1();
@@ -12,6 +13,7 @@ function init() {
     soundManager.play('BG', true);
 }
 
+/** Tears down the current game and starts a brand new one, without reloading the page. */
 function restartGame() {
     if (world) world.destroy();
     gameStarted = false;
@@ -20,6 +22,7 @@ function restartGame() {
     init();
 }
 
+/** Tears down the current game and returns to the start screen. */
 function backToMenu() {
     if (world) world.destroy();
     gameStarted = false;
@@ -30,6 +33,10 @@ function backToMenu() {
     document.getElementById('mobile-controls').classList.add('hidden');
 }
 
+/**
+ * Shows the win or lose screen and plays the matching sound, once the game has ended.
+ * @param {boolean} won - True if the boss was defeated, false if the character died.
+ */
 function showEndScreen(won) {
     let endScreen = document.getElementById('end-screen');
     soundManager.stop('BG');
@@ -43,6 +50,10 @@ function showEndScreen(won) {
     document.getElementById('mobile-controls').classList.add('hidden');
 }
 
+/**
+ * Displays the win screen's full confetti artwork.
+ * @param {HTMLElement} endScreen - The end-screen container element.
+ */
 function showWinScreen(endScreen) {
     endScreen.style.backgroundImage = "url('" + IMAGE_HUB.UI.SCREENS.YOU_WIN + "')";
     endScreen.style.backgroundColor = 'transparent';
@@ -50,6 +61,10 @@ function showWinScreen(endScreen) {
     document.getElementById('end-title').classList.add('hidden');
 }
 
+/**
+ * Displays the "Game Over" title on the dark end-screen background.
+ * @param {HTMLElement} endScreen - The end-screen container element.
+ */
 function showLoseScreen(endScreen) {
     endScreen.style.backgroundImage = 'none';
     endScreen.style.backgroundColor = '';
@@ -59,6 +74,7 @@ function showLoseScreen(endScreen) {
     endTitle.classList.remove('hidden');
 }
 
+/** Loads all sounds and wires up every menu/button once the page has fully loaded. */
 function setupMenus() {
     soundManager.loadAll();
     document.getElementById('start-button').addEventListener('click', () => {
@@ -72,6 +88,7 @@ function setupMenus() {
     setupAudioControls();
 }
 
+/** Wires up the mute button and volume slider. */
 function setupAudioControls() {
     let muteButton = document.getElementById('mute-button');
     let volumeSlider = document.getElementById('volume-slider');
@@ -85,15 +102,22 @@ function setupAudioControls() {
     });
 }
 
+/** Swaps the mute button's icon to match the current muted state. */
 function updateMuteIcon() {
     let icon = soundManager.muted ? IMAGE_HUB.UI.SCREENS.VOLUME_OFF : IMAGE_HUB.UI.SCREENS.VOLUME_ON;
     document.getElementById('mute-icon').src = icon;
 }
 
+/** Wires up every on-screen mobile control button. */
 function setupMobileControls() {
     document.querySelectorAll('.mobile-btn').forEach(bindMobileButton);
 }
 
+/**
+ * Binds a single mobile control button to the matching keyboard flag, and
+ * blocks the long-press context menu so it can't interrupt gameplay.
+ * @param {HTMLElement} btn - The button element, with its key in data-key.
+ */
 function bindMobileButton(btn) {
     let key = btn.dataset.key;
     btn.addEventListener('touchstart', (e) => { e.preventDefault(); keyboard[key] = true; });
@@ -102,6 +126,7 @@ function bindMobileButton(btn) {
     btn.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 
+/** Wires up opening/closing the Impressum popup, including clicking outside it. */
 function setupImpressum() {
     let overlay = document.getElementById('impressum-overlay');
     document.getElementById('impressum-link').addEventListener('click', () => {

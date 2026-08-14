@@ -6,15 +6,23 @@ class Keyboard {
     SPACE = false;
     D = false;
 
+    /** Creates a keyboard state tracker and starts listening for key events. */
     constructor() {
         this.bindKeyEvents();
     }
 
+    /** Registers the window-level keydown/keyup listeners. */
     bindKeyEvents() {
         window.addEventListener('keydown', (e) => this.handleKey(e, true));
         window.addEventListener('keyup', (e) => this.handleKey(e, false));
     }
 
+    /**
+     * Updates the relevant key flag and blocks default browser behavior
+     * (like page scroll) for the keys this game uses.
+     * @param {KeyboardEvent} e - The keydown/keyup event.
+     * @param {boolean} isPressed - Whether the key is now pressed or released.
+     */
     handleKey(e, isPressed) {
         switch (e.code) {
             case 'ArrowLeft':  this.LEFT  = isPressed; break;
@@ -29,6 +37,7 @@ class Keyboard {
         }
     }
 
+    /** Clears every key flag (used when restarting so no key stays "stuck"). */
     reset() {
         this.LEFT = false;
         this.RIGHT = false;

@@ -24,6 +24,10 @@ class JellyFish extends MovableObject {
     activeImages;
     deadImages;
 
+    /**
+     * Creates a jellyfish at a random position that bobs up and down as it swims.
+     * @param {boolean} [isDangerous=false] - Whether this is the dangerous (red) variant.
+     */
     constructor(isDangerous = false) {
         super();
         this.isDangerous = isDangerous;
@@ -43,6 +47,7 @@ class JellyFish extends MovableObject {
         this.animate();
     }
 
+    /** Starts the movement and animation loops. */
     animate() {
         this.intervalIds = [
             setInterval(() => this.updatePosition(), 1000 / 60),
@@ -50,10 +55,12 @@ class JellyFish extends MovableObject {
         ];
     }
 
+    /** Stops all of this enemy's timers (called when the level is torn down). */
     destroy() {
         this.intervalIds.forEach(id => clearInterval(id));
     }
 
+    /** Moves left while bobbing vertically between minY and maxY. */
     updatePosition() {
         if (!gameStarted || this.isDying) return;
         this.moveLeft();
@@ -63,6 +70,7 @@ class JellyFish extends MovableObject {
         }
     }
 
+    /** Plays the swim animation normally, or the death animation while dying. */
     updateAnimation() {
         if (this.isDying) {
             this.playDeathAnimation();
@@ -71,6 +79,7 @@ class JellyFish extends MovableObject {
         }
     }
 
+    /** Begins the one-shot death sequence after being hit. */
     startDying() {
         if (this.isDying) return;
         this.isDying = true;
@@ -78,6 +87,7 @@ class JellyFish extends MovableObject {
         soundManager.play('DMG');
     }
 
+    /** Advances the death animation one frame, then marks for removal once finished. */
     playDeathAnimation() {
         if (this.deathFrame >= this.deadImages.length) {
             this.markedForRemoval = true;

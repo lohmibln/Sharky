@@ -23,6 +23,10 @@ class EndBoss extends MovableObject {
     deathFrame = 0;
     intervalIds = [];
 
+    /**
+     * Creates the end boss at a fixed position near the end of the level.
+     * @param {number} x - World x-position where the boss waits.
+     */
     constructor(x) {
         super();
         this.x = x;
@@ -32,6 +36,7 @@ class EndBoss extends MovableObject {
         this.animate();
     }
 
+    /** Starts the chase and animation loops. */
     animate() {
         this.intervalIds = [
             setInterval(() => this.chaseCharacter(), 1000 / 60),
@@ -39,10 +44,12 @@ class EndBoss extends MovableObject {
         ];
     }
 
+    /** Stops all of the boss's timers (called when the level is torn down). */
     destroy() {
         this.intervalIds.forEach(id => clearInterval(id));
     }
 
+    /** Plays the floating animation normally, or the death animation once defeated. */
     updateAnimation() {
         if (this.isDefeated) {
             this.playDeathAnimation();
@@ -51,12 +58,17 @@ class EndBoss extends MovableObject {
         }
     }
 
+    /** Advances the death animation one frame, then holds on the last frame. */
     playDeathAnimation() {
         if (this.deathFrame >= this.IMAGES_DEAD.length) return;
         this.img = this.imageCache[this.IMAGES_DEAD[this.deathFrame]];
         this.deathFrame++;
     }
 
+    /**
+     * Activates the boss once the character is close enough, then chases
+     * and follows them horizontally and vertically until defeated.
+     */
     chaseCharacter() {
         if (!this.world || this.isDefeated || !gameStarted) return;
         let distanceX = this.world.character.x - this.x;
@@ -69,6 +81,10 @@ class EndBoss extends MovableObject {
         this.followVertically(distanceY);
     }
 
+    /**
+     * Activates the boss fight once the character enters activation range.
+     * @param {number} distanceX - Horizontal distance to the character.
+     */
     checkActivation(distanceX) {
         if (Math.abs(distanceX) < this.activationDistance) {
             this.isActive = true;
@@ -76,11 +92,19 @@ class EndBoss extends MovableObject {
         }
     }
 
+    /**
+     * Steps horizontally toward the character and faces the right direction.
+     * @param {number} distance - Signed horizontal distance to the character.
+     */
     moveTowardCharacter(distance) {
         this.x += distance > 0 ? this.speed : -this.speed;
         this.otherDirection = distance > 0;
     }
 
+    /**
+     * Tracks the character's vertical position, clamped so the boss stays on screen.
+     * @param {number} distanceY - Signed vertical distance to the character.
+     */
     followVertically(distanceY) {
         if (Math.abs(distanceY) < this.speed) {
             this.y = this.world.character.y;
@@ -91,6 +115,10 @@ class EndBoss extends MovableObject {
         if (this.y > 165) this.y = 165;
     }
 
+    /**
+     * Applies damage from an attack and marks the boss defeated at 0 HP.
+     * @param {number} [amount=1] - How much health to remove.
+     */
     takeDamage(amount = 1) {
         if (this.isDefeated) return;
         this.health -= amount;

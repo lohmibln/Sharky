@@ -13,6 +13,11 @@ class World {
     gameEnded = false;
     stopped = false;
 
+    /**
+     * Creates the game world and starts the draw loop.
+     * @param {HTMLCanvasElement} canvas - The canvas to render into.
+     * @param {Keyboard} keyboard - The shared keyboard input state.
+     */
     constructor(canvas, keyboard) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
@@ -23,12 +28,14 @@ class World {
         this.draw();
     }
 
+    /** Gives the boss a reference back to this world so it can chase the character. */
     assignWorldToBoss() {
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof EndBoss) enemy.world = this;
         });
     }
 
+    /** Stops the draw loop and every character/enemy/coin/bubble timer it owns. */
     destroy() {
         this.stopped = true;
         this.character.destroy();
@@ -37,6 +44,7 @@ class World {
         this.bubbles.forEach(bubble => bubble.remove());
     }
 
+    /** Renders one frame, checks collisions, then schedules the next frame. */
     draw() {
         if (this.stopped) return;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -55,18 +63,22 @@ class World {
         requestAnimationFrame(() => this.draw());
     }
 
+    /** Draws every parallax background tile. */
     drawBackgrounds() {
         this.level.backgroundObjects.forEach(bg => bg.draw(this.ctx));
     }
 
+    /** Draws every active bubble projectile. */
     drawBubbles() {
         this.bubbles.forEach(bubble => bubble.draw(this.ctx));
     }
 
+    /** Draws every remaining coin. */
     drawCoins() {
         this.level.coins.forEach(coin => coin.draw(this.ctx));
     }
 
+    /** Draws enemies, showing only the boss once the boss fight has started. */
     drawEnemies() {
         let enemiesToDraw = this.isBossFight
             ? this.level.enemies.filter(enemy => enemy instanceof EndBoss)
@@ -75,10 +87,15 @@ class World {
         enemiesToDraw.forEach(enemy => this.drawFlippable(enemy));
     }
 
+    /** Draws the character, flipping it to face the right direction. */
     drawCharacter() {
         this.drawFlippable(this.character);
     }
 
+    /**
+     * Draws an object normally, or mirrored if it's currently facing left.
+     * @param {MovableObject} movableObject - The object to draw.
+     */
     drawFlippable(movableObject) {
         if (movableObject.otherDirection) {
             this.drawMirrored(movableObject);
@@ -87,6 +104,10 @@ class World {
         }
     }
 
+    /**
+     * Draws an object horizontally mirrored in place.
+     * @param {MovableObject} movableObject - The object to draw flipped.
+     */
     drawMirrored(movableObject) {
         this.ctx.save();
         this.ctx.translate(movableObject.x + movableObject.width, movableObject.y);
@@ -95,17 +116,20 @@ class World {
         this.ctx.restore();
     }
 
+    /** Draws the coin counter fixed to the top-left of the canvas. */
     drawCoinCounter() {
         this.ctx.font = '20px "Luckiest Guy", sans-serif';
         this.ctx.fillStyle = 'white';
         this.ctx.fillText('Coins: ' + this.coinsCollected, 20, 85);
     }
 
+    /** Updates and draws the player's health bar. */
     drawHealthBar() {
         this.healthBar.setPercentage(this.character.health / this.character.maxHealth * 100);
         this.healthBar.draw(this.ctx);
     }
 
+    /** Updates and draws the boss's health bar, only during the boss fight. */
     drawBossHealthBar() {
         if (!this.isBossFight) return;
         let boss = this.level.enemies.find(enemy => enemy instanceof EndBoss);
@@ -114,6 +138,7 @@ class World {
         this.bossHealthBar.draw(this.ctx);
     }
 
+    /** Runs every per-frame collision, cleanup, and game-end check. */
     checkCollisions() {
         this.character.isHurt = this.isTouchingHarmfulEnemy();
         if (this.character.isHurt) {
@@ -126,6 +151,10 @@ class World {
         this.checkGameEnd();
     }
 
+    /**
+     * Checks whether the character is currently touching an enemy that can hurt them.
+     * @returns {boolean} True if a harmful enemy is currently overlapping the character.
+     */
     isTouchingHarmfulEnemy() {
         let enemiesToCheck = this.isBossFight
             ? this.level.enemies.filter(enemy => enemy instanceof EndBoss)
@@ -136,6 +165,7 @@ class World {
         return harmfulEnemies.some(enemy => this.character.isColliding(enemy));
     }
 
+    /** Shows the win or lose screen once the character's death animation or the boss's finishes. */
     checkGameEnd() {
         if (this.gameEnded) return;
         if (this.character.isDead && this.character.currentImage >= this.character.IMAGES_DEATH.length) {
@@ -150,12 +180,14 @@ class World {
         }
     }
 
+    /** Removes coins the character is touching and adds them to the coin count. */
     checkCoinCollection() {
         let remaining = this.level.coins.filter(coin => !this.character.isColliding(coin));
         this.coinsCollected += this.level.coins.length - remaining.length;
         this.level.coins = remaining;
     }
 
+    /** Applies fin slap damage once per swing to any enemy the character is touching. */
     checkMeleeHits() {
         if (!this.character.isFinSlapping || this.character.finSlapHasHit) return;
         let hits = this.level.enemies.filter(enemy => !enemy.isDying && this.character.isColliding(enemy));
@@ -170,10 +202,12 @@ class World {
         });
     }
 
+    /** Removes bubbles that have hit something or left the visible area. */
     cleanupBubbles() {
         this.bubbles = this.bubbles.filter(bubble => !bubble.markedForRemoval);
     }
 
+    /** Removes enemies whose death animation has finished playing. */
     cleanupDeadEnemies() {
         this.level.enemies = this.level.enemies.filter(enemy => !enemy.markedForRemoval);
     }
