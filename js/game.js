@@ -1,6 +1,7 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let soundManager = new SoundManager();
 let gameStarted = false;
 
 function init() {
@@ -8,6 +9,7 @@ function init() {
     createLevel1();
     world = new World(canvas, keyboard);
     document.getElementById('mobile-controls').classList.remove('hidden');
+    soundManager.play('BG', true);
 }
 
 function restartGame() {
@@ -22,6 +24,7 @@ function backToMenu() {
     if (world) world.destroy();
     gameStarted = false;
     keyboard.reset();
+    soundManager.stop('BG');
     document.getElementById('end-screen').classList.add('hidden');
     document.getElementById('start-screen').classList.remove('hidden');
     document.getElementById('mobile-controls').classList.add('hidden');
@@ -29,6 +32,8 @@ function backToMenu() {
 
 function showEndScreen(won) {
     let endScreen = document.getElementById('end-screen');
+    soundManager.stop('BG');
+    soundManager.play(won ? 'VICTORY' : 'DEFEAT');
     if (won) {
         showWinScreen(endScreen);
     } else {
@@ -55,6 +60,7 @@ function showLoseScreen(endScreen) {
 }
 
 function setupMenus() {
+    soundManager.loadAll();
     document.getElementById('start-button').addEventListener('click', () => {
         document.getElementById('start-screen').classList.add('hidden');
         init();
@@ -63,6 +69,25 @@ function setupMenus() {
     document.getElementById('back-to-menu-button').addEventListener('click', backToMenu);
     setupImpressum();
     setupMobileControls();
+    setupAudioControls();
+}
+
+function setupAudioControls() {
+    let muteButton = document.getElementById('mute-button');
+    let volumeSlider = document.getElementById('volume-slider');
+    updateMuteIcon();
+    muteButton.addEventListener('click', () => {
+        soundManager.toggleMute();
+        updateMuteIcon();
+    });
+    volumeSlider.addEventListener('input', (e) => {
+        soundManager.setVolume(parseFloat(e.target.value));
+    });
+}
+
+function updateMuteIcon() {
+    let icon = soundManager.muted ? IMAGE_HUB.UI.SCREENS.VOLUME_OFF : IMAGE_HUB.UI.SCREENS.VOLUME_ON;
+    document.getElementById('mute-icon').src = icon;
 }
 
 function setupMobileControls() {
@@ -88,6 +113,10 @@ function setupImpressum() {
     overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.classList.add('hidden');
     });
+}
+
+if (window.matchMedia('(hover: none)').matches) {
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
 }
 
 window.addEventListener('load', setupMenus);

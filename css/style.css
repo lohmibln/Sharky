@@ -39,6 +39,39 @@ canvas {
     box-shadow: 0 0 30px rgba(0, 100, 200, 0.3);
 }
 
+.audio-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.mute-button {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: rgba(75, 26, 107, 0.75);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mute-button img {
+    width: 18px;
+    height: 18px;
+}
+
+.volume-slider {
+    width: 80px;
+    accent-color: #7ee8c4;
+    cursor: pointer;
+}
+
 .overlay {
     position: absolute;
     inset: 0;
@@ -48,6 +81,7 @@ canvas {
     align-items: center;
     justify-content: center;
     gap: 24px;
+    padding-top: 54px;
     border-radius: 4px;
     background-color: rgba(10, 22, 40, 0.85);
     background-size: cover;
@@ -56,6 +90,15 @@ canvas {
 
 .hidden {
     display: none;
+}
+
+.game-title {
+    font-size: min(48px, 9vh);
+    color: white;
+    -webkit-text-stroke: 0.06em #4b1a6b;
+    text-stroke: 0.06em #4b1a6b;
+    letter-spacing: 2px;
+    margin: 0;
 }
 
 .controls-box {
@@ -146,9 +189,9 @@ canvas {
 
 #mobile-controls {
     display: none;
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 5;
+    z-index: 50;
     pointer-events: none;
 }
 
@@ -211,24 +254,40 @@ canvas {
     position: fixed;
     inset: 0;
     z-index: 100;
-    background: #0a1628;
-    color: white;
+    background: black;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    text-align: center;
-    padding: 24px;
 }
 
-#rotate-overlay p {
+.phone {
+    height: 100px;
+    width: 50px;
+    border: 3px solid white;
+    border-radius: 10px;
+    animation: rotate 1.5s ease-in-out infinite alternate;
+}
+
+.message {
+    color: white;
     font-family: 'Luckiest Guy', sans-serif;
-    font-size: 20px;
+    font-size: 18px;
+    margin-top: 40px;
     max-width: 320px;
+    text-align: center;
+    padding: 0 24px;
 }
 
-.rotate-icon {
-    font-size: 48px;
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-90deg);
+    }
+    100% {
+        transform: rotate(-90deg);
+    }
 }
 
 @media (hover: none) and (orientation: landscape) {

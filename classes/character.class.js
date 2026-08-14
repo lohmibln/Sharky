@@ -118,6 +118,7 @@ class Character extends MovableObject {
         this.finSlapHasHit = false;
         this.attackImages = this.IMAGES_FINSLAP;
         this.currentImage = 0;
+        soundManager.play('SLAP');
     }
 
     startBubbleTrap() {
@@ -134,6 +135,7 @@ class Character extends MovableObject {
         let bubble = new Bubble(x, y, direction);
         bubble.world = this.world;
         this.world.bubbles.push(bubble);
+        soundManager.play('BUBBLE');
     }
 
     handleAnimation() {
@@ -199,6 +201,7 @@ class Character extends MovableObject {
         if (now - this.lastHit < this.hurtCooldown) return;
         this.lastHit = now;
         this.health -= amount;
+        soundManager.play('DMG');
         if (this.health <= 0) {
             this.health = 0;
             this.isDead = true;

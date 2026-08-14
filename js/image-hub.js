@@ -52,7 +52,9 @@ const IMAGE_HUB = {
             KEY_SPACE: 'img/ui/screens/key-space.png',
             GAME_OVER_TITLE: 'img/ui/screens/game-over-title.png',
             YOU_WIN: 'img/ui/screens/you-win.png',
-            TRY_AGAIN_BUTTON: 'img/ui/screens/try-again-button.png'
+            TRY_AGAIN_BUTTON: 'img/ui/screens/try-again-button.png',
+            VOLUME_ON: 'img/ui/screens/volume-on.svg',
+            VOLUME_OFF: 'img/ui/screens/volume-off.svg'
         }
     }
 };

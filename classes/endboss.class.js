@@ -94,6 +94,7 @@ class EndBoss extends MovableObject {
     takeDamage(amount = 1) {
         if (this.isDefeated) return;
         this.health -= amount;
+        soundManager.play('DMG');
         if (this.health <= 0) {
             this.health = 0;
             this.isDefeated = true;

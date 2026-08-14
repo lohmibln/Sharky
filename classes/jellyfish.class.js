@@ -75,6 +75,7 @@ class JellyFish extends MovableObject {
         if (this.isDying) return;
         this.isDying = true;
         this.deathFrame = 0;
+        soundManager.play('DMG');
     }
 
     playDeathAnimation() {
