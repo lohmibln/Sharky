@@ -41,6 +41,7 @@ const IMAGE_HUB = {
         SPIN: numberedPaths('img/coins', 4)
     },
     BUBBLE: 'img/bubble/bubble.png',
+    GREEN_BUBBLE: 'img/green-bubble/green-bubble.png',
     BACKGROUND: {
         WATER: numberedPaths('img/background/water', 2),
         FONDO2: numberedPaths('img/background/fondo2', 2),

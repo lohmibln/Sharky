@@ -27,7 +27,7 @@ body {
 
 #game-container {
     position: relative;
-    width: min(720px, 100vw, calc(100vh * 720 / 480));
+    width: min(1000px, 100vw, calc(100vh * 720 / 480));
     aspect-ratio: 720 / 480;
 }
 

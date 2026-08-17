@@ -6,8 +6,11 @@ class World {
     keyboard;
     cameraX = 0;
     coinsCollected = 0;
+    greenBubblesCollected = 0;
+    coinIcon = new Image();
+    greenBubbleIcon = new Image();
     healthBar = new HealthBar();
-    bossHealthBar = new HealthBar(IMAGE_HUB.UI.HP_BOSS_FOLDER, 550, 20);
+    bossHealthBar = new HealthBar(IMAGE_HUB.UI.HP_BOSS_FOLDER, 550, 55);
     isBossFight = false;
     bubbles = [];
     gameEnded = false;
@@ -24,6 +27,8 @@ class World {
         this.keyboard = keyboard;
         this.level = level1;
         this.character.world = this;
+        this.coinIcon.src = IMAGE_HUB.COIN.SPIN[0];
+        this.greenBubbleIcon.src = IMAGE_HUB.GREEN_BUBBLE;
         this.assignWorldToBoss();
         this.draw();
     }
@@ -52,11 +57,11 @@ class World {
         this.ctx.translate(this.cameraX, 0);
         this.drawBackgrounds();
         this.drawBubbles();
-        this.drawCoins();
+        this.drawCollectibles();
         this.drawEnemies();
         this.drawCharacter();
         this.ctx.restore();
-        this.drawCoinCounter();
+        this.drawCounters();
         this.drawHealthBar();
         this.drawBossHealthBar();
         this.checkCollisions();
@@ -73,9 +78,20 @@ class World {
         this.bubbles.forEach(bubble => bubble.draw(this.ctx));
     }
 
+    /** Draws every remaining coin and green bubble. */
+    drawCollectibles() {
+        this.drawCoins();
+        this.drawGreenBubbles();
+    }
+
     /** Draws every remaining coin. */
     drawCoins() {
         this.level.coins.forEach(coin => coin.draw(this.ctx));
+    }
+
+    /** Draws every remaining green bubble. */
+    drawGreenBubbles() {
+        this.level.greenBubbles.forEach(bubble => bubble.draw(this.ctx));
     }
 
     /** Draws enemies, showing only the boss once the boss fight has started. */
@@ -116,11 +132,34 @@ class World {
         this.ctx.restore();
     }
 
+    /** Draws both HUD counters (coins and green bubbles). */
+    drawCounters() {
+        this.drawCoinCounter();
+        this.drawGreenBubbleCounter();
+    }
+
     /** Draws the coin counter fixed to the top-left of the canvas. */
     drawCoinCounter() {
+        this.drawCounter(this.coinIcon, this.coinsCollected, 68);
+    }
+
+    /** Draws the green bubble counter just below the coin counter. */
+    drawGreenBubbleCounter() {
+        this.drawCounter(this.greenBubbleIcon, this.greenBubblesCollected, 100);
+    }
+
+    /**
+     * Draws a small icon followed by a colon and a number, used for both the
+     * coin and green bubble counters.
+     * @param {HTMLImageElement} icon - Icon to draw next to the count.
+     * @param {number} count - Current collected amount.
+     * @param {number} y - Vertical position for this counter row.
+     */
+    drawCounter(icon, count, y) {
+        this.ctx.drawImage(icon, 20, y, 24, 24);
         this.ctx.font = '20px "Luckiest Guy", sans-serif';
         this.ctx.fillStyle = 'white';
-        this.ctx.fillText('Coins: ' + this.coinsCollected, 20, 85);
+        this.ctx.fillText(': ' + count, 48, y + 20);
     }
 
     /** Updates and draws the player's health bar. */
@@ -145,6 +184,7 @@ class World {
             this.character.takeDamage(1);
         }
         this.checkCoinCollection();
+        this.checkGreenBubbleCollection();
         this.checkMeleeHits();
         this.cleanupBubbles();
         this.cleanupDeadEnemies();
@@ -185,6 +225,18 @@ class World {
         let remaining = this.level.coins.filter(coin => !this.character.isColliding(coin));
         this.coinsCollected += this.level.coins.length - remaining.length;
         this.level.coins = remaining;
+    }
+
+    /**
+     * Removes green bubbles the character is touching, adds them to the count,
+     * and heals the character 10% of their max health per bubble collected.
+     */
+    checkGreenBubbleCollection() {
+        let remaining = this.level.greenBubbles.filter(bubble => !this.character.isColliding(bubble));
+        let collected = this.level.greenBubbles.length - remaining.length;
+        this.greenBubblesCollected += collected;
+        this.character.heal(collected * this.character.maxHealth * 0.1);
+        this.level.greenBubbles = remaining;
     }
 
     /** Applies fin slap damage once per swing to any enemy the character is touching. */

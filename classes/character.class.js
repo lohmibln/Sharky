@@ -238,4 +238,12 @@ class Character extends MovableObject {
         }
         this.currentImage = 0;
     }
+
+    /**
+     * Restores health, capped at the character's maximum.
+     * @param {number} amount - How much health to add.
+     */
+    heal(amount) {
+        this.health = Math.min(this.maxHealth, this.health + amount);
+    }
 }

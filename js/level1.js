@@ -5,7 +5,8 @@ function createLevel1() {
     let enemies = createEnemies();
     let backgrounds = createBackgrounds();
     let coins = createCoins();
-    level1 = new Level(enemies, backgrounds, coins);
+    let greenBubbles = createGreenBubbles();
+    level1 = new Level(enemies, backgrounds, coins, greenBubbles);
 }
 
 /**
@@ -92,6 +93,21 @@ function createCoins() {
         coins.push(new Coin(x, y));
     }
     return coins;
+}
+
+/**
+ * Lays out 10 collectible green bubbles along the level with some random jitter,
+ * offset from the coin positions so the two don't just stack on top of each other.
+ * @returns {GreenBubble[]} All green bubbles for level 1.
+ */
+function createGreenBubbles() {
+    let greenBubbles = [];
+    for (let i = 0; i < 10; i++) {
+        let x = 550 + i * 600 + Math.random() * 150;
+        let y = 80 + Math.random() * 300;
+        greenBubbles.push(new GreenBubble(x, y));
+    }
+    return greenBubbles;
 }
 
 /**
